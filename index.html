@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ansaff Ashraff — photography</title>
+  <meta name="description" content="Travel and landscape photography by Ansaff Ashraff. Caves, highlands, and cold light." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <header class="topbar">
+    <a href="index.html" class="brand">Ansaff Ashraff<span class="dot">.</span></a>
+    <nav class="nav" aria-label="Primary">
+      <a href="portfolio.html">Portfolio</a>
+      <a href="about.html">About</a>
+      <a href="blog.html">Blog</a>
+      <a href="work.html">Work With Me</a>
+    </nav>
+  </header>
+  <div class="topbar-rule"><hr /></div>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <img class="hero-img" src="images/large/1000104863.webp"
+         alt="Figure in a red jacket dwarfed by a vast turquoise ice cave" />
+    <div class="hero-inner">
+      <h1 class="hero-title">Ansaff Ashraff<span class="dot">.</span></h1>
+      <p class="hero-sub">Travel &amp; landscape photography — London</p>
+    </div>
+    <a class="scroll-cue" href="#portfolio">Scroll</a>
+  </section>
+
+  <!-- ================= PORTFOLIO TEASER ================= -->
+  <section class="story" id="portfolio">
+    <div class="story-text reveal">
+      <div class="story-kicker">Portfolio</div>
+      <h2>Places bigger than the people in them</h2>
+      <p>Ice caves, coastlines and highlands — cinematic landscapes with a small figure for scale. The full collection, one flowing gallery.</p>
+      <a class="story-link" href="portfolio.html">View the portfolio <span class="arrow">&rarr;</span></a>
+    </div>
+    <div class="story-media is-duo reveal reveal-delay-1">
+      <img src="images/thumb/1000105221.webp" alt="Person photographing towering blue ice formations underground" loading="lazy" />
+      <img src="images/thumb/1000104862.webp" alt="Yellow gorse in bloom across rolling green coastal hills" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- ================= ABOUT TEASER ================= -->
+  <section class="story is-flipped">
+    <div class="story-text reveal">
+      <div class="story-kicker">About</div>
+      <h2>Cold light, long walks</h2>
+      <p>London-based, drawn to places you have to walk into. By day a geotechnical engineer — which is probably why the camera keeps finding rock and ice.</p>
+      <a class="story-link" href="about.html">More about me <span class="arrow">&rarr;</span></a>
+    </div>
+    <div class="story-media reveal reveal-delay-1">
+      <img src="images/thumb/1000104861.webp" alt="Visitors descending a railed path through a warm-lit cavern" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- ================= BLOG TEASER ================= -->
+  <section class="story">
+    <div class="story-text reveal">
+      <div class="story-kicker">Field Notes</div>
+      <h2>The stories behind the frames</h2>
+      <p>Occasional writing on the places, the walks in, and what the light was doing when it mattered.</p>
+      <a class="story-link" href="blog.html">Read the blog <span class="arrow">&rarr;</span></a>
+    </div>
+    <div class="story-media reveal reveal-delay-1">
+      <img src="images/thumb/1000105216.webp" alt="Misty patchwork of green fields with grazing sheep" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- ================= WORK TEASER ================= -->
+  <section class="story is-flipped">
+    <div class="story-text reveal">
+      <div class="story-kicker">Work With Me</div>
+      <h2>Prints, commissions, collaborations</h2>
+      <p>Tell me about the project — where, when, and the feel you're after — and it lands straight in my inbox.</p>
+      <a class="story-link" href="work.html">Start a brief <span class="arrow">&rarr;</span></a>
+    </div>
+    <div class="story-media reveal reveal-delay-1">
+      <img src="images/thumb/1000104863.webp" alt="Figure in a red jacket inside a turquoise ice cave" loading="lazy" />
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <span>&copy; <span id="year"></span> Ansaff Ashraff</span>
+    <div class="socials">
+      <a href="#" aria-label="Instagram" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
+      <a href="#" aria-label="Email" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script src="js/reveal.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# macOS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# NOTE on images:
+# The generated thumb/ and large/ versions ARE committed (they're small and
+# are what the site serves). Originals in images/full/ are large — decide per
+# your own preference whether to commit them. If you'd rather keep the repo
+# lean, uncomment the next line and back originals up elsewhere.
+# images/full/
