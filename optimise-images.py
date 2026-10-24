@@ -5,8 +5,8 @@ optimise-images.py
 Turns Lightroom exports into web-ready versions.
 
     images/full/          ->  your exports, untouched (stays local, git-ignored)
-    public/images/thumb/  ->  800px wide .webp, used in the grid
-    public/images/large/  ->  1600px wide .webp, used in the lightbox
+    public/images/thumb/  ->  1000px long edge, quality 85, used in the grid
+    public/images/large/  ->  2560px long edge, quality 92, used in the lightbox (sharp on large and retina screens)
 
 Usage:
     python3 optimise-images.py            # process anything new in images/full/
@@ -20,11 +20,12 @@ location, camera serial number or editing history. Originals never leave your co
 Requires Pillow:  pip install pillow
 """
 
+import io
 import sys
 from pathlib import Path
 
 try:
-    from PIL import Image, ImageOps
+    from PIL import Image, ImageCms, ImageOps
 except ImportError:
     sys.exit("Pillow is not installed. Run:  pip install pillow")
 
@@ -34,8 +35,8 @@ THUMB = ROOT / "public" / "images" / "thumb"
 LARGE = ROOT / "public" / "images" / "large"
 
 SIZES = {  # folder: (max long-edge px, webp quality)
-    THUMB: (800, 80),
-    LARGE: (1600, 82),
+    THUMB: (1000, 85),
+    LARGE: (2560, 92),
 }
 ACCEPT = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".webp"}
 
@@ -50,6 +51,17 @@ def process(src: Path, force: bool) -> bool:
 
     with Image.open(src) as im:
         im = ImageOps.exif_transpose(im)          # respect rotation from camera
+        icc = im.info.get("icc_profile")
+        if icc:                                   # wide-gamut export (Display P3, AdobeRGB)?
+            try:                                  # convert to sRGB so colours match what you graded
+                im = ImageCms.profileToProfile(
+                    im,
+                    ImageCms.ImageCmsProfile(io.BytesIO(icc)),
+                    ImageCms.createProfile("sRGB"),
+                    outputMode="RGB",
+                )
+            except Exception:
+                pass                              # unreadable profile: carry on as-is
         if im.mode not in ("RGB", "L"):
             im = im.convert("RGB")                # drop alpha / CMYK / etc.
 

@@ -41,7 +41,7 @@ Cloudflare
 
 ## Known limits
 
-Photos on any website can be saved by visitors. Metadata stripping and the copyright line help, but nothing technical fully prevents copying. Keep the published versions at 1600 px or smaller.
+Photos on any website can be saved by visitors. Metadata stripping and the copyright line help, but nothing technical fully prevents copying. The published lightbox version is 2560 px, a deliberate balance between sharpness and copy-resistance. Your full-resolution originals are never published.
 
 ## Reporting a problem
 

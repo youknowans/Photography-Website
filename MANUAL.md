@@ -11,10 +11,10 @@ Open http://localhost:8787. Leave DevTools open on the Network tab with "Disable
 
 ## Add photos
 
-1. Export from Lightroom: sRGB, JPEG quality 85, long edge 2500 to 3000 px.
+1. Export from Lightroom at high quality: JPEG quality 90 to 100, sRGB, full resolution (or at least 3000 px on the long edge). Never export a smaller or lower-quality copy first: the script can only shrink, never restore detail.
 2. Put the files in `images/full/` (create the folder if needed). It is git-ignored, so originals never leave your computer.
 3. Run `pip install pillow` once, then `python3 optimise-images.py` (on Windows try `py optimise-images.py`).
-4. It creates the web versions in `public/images/thumb` and `public/images/large`, removes all metadata (including GPS), and prints one line per photo.
+4. It creates two web versions: a 1000 px grid image and a 2560 px lightbox image (high quality, converted to sRGB so colours match your grade). It removes all metadata (including GPS) and prints one line per photo.
 5. Paste those lines at the top of `public/js/photos.js` and fill in `alt`, `place` and `category`.
 6. `git add -A`, commit, `git push`.
 
