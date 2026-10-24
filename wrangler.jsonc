@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "youknowans",
+  "compatibility_date": "2026-10-24",
+
+  // Serve only the public/ folder. Nothing else in the repo is ever published.
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  },
+
+  // Only the real domain is reachable: no extra *.workers.dev or preview URLs.
+  "workers_dev": false,
+  "preview_urls": false,
+
+  // Attaches the domains on deploy (DNS record + HTTPS certificate are automatic
+  // because the domain is on Cloudflare).
+  "routes": [
+    { "pattern": "youknowans.com", "custom_domain": true },
+    { "pattern": "www.youknowans.com", "custom_domain": true }
+  ]
+}

@@ -2,14 +2,25 @@
 .DS_Store
 Thumbs.db
 .vscode/
+.idea/
 
 # Python
 __pycache__/
 *.pyc
 
-# NOTE on images:
-# The generated thumb/ and large/ versions ARE committed (they're small and
-# are what the site serves). Originals in images/full/ are large — decide per
-# your own preference whether to commit them. If you'd rather keep the repo
-# lean, uncomment the next line and back originals up elsewhere.
-# images/full/
+# Node / Cloudflare tooling
+node_modules/
+.wrangler/
+.dev.vars
+.env
+.env.*
+
+# Lightroom exports stay on your computer. Only the optimised copies in
+# public/images/thumb and public/images/large are published.
+images/full/
+
+# Credentials: never commit these
+*.pem
+*.key
+id_rsa*
+id_ed25519*

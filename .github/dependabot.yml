@@ -1,0 +1,8 @@
+# Weekly check for updates to the one dependency (Wrangler), so security
+# fixes arrive as a pull request instead of being missed.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
