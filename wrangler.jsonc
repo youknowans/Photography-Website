@@ -3,9 +3,9 @@
   "name": "youknowans",
   "compatibility_date": "2026-10-24",
 
-  // Serve only the public/ folder. Nothing else in the repo is ever published.
+  // Serve only dist/, the finished site Astro builds. Nothing else is ever published.
   "assets": {
-    "directory": "./public",
+    "directory": "./dist",
     "not_found_handling": "404-page"
   },
 

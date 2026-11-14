@@ -16,12 +16,12 @@
 **Privacy**
 - `optimise-images.py` removes all EXIF/GPS metadata, so published photos carry no location, camera serial or edit history. Originals stay in `images/full/` on your computer and are git-ignored.
 - The email address is assembled in the browser, not written in the HTML, so scrapers do not harvest it. Use a forwarding address on your domain, not your personal one.
-- Only `public/` is uploaded to Cloudflare. Config, scripts, docs and `.git` are never published.
+- Only `dist/` (the finished site Astro builds) is uploaded to Cloudflare. Source files, config, scripts, docs, drafts and `.git` are never published. Astro runs only at build time, never on the live site.
 - The `*.workers.dev` and preview URLs are switched off, so there is exactly one public address.
 
 **Repo hygiene**
 - `.gitignore` blocks `.env`, `.dev.vars`, keys and certificates.
-- `package-lock.json` pins the single dependency (Wrangler); Dependabot opens a weekly pull request for updates.
+- `package-lock.json` pins the build tools (Astro and Wrangler); Dependabot opens a weekly pull request for updates.
 - No secrets, tokens or personal emails are in the files.
 
 ## Your checklist (settings only you can change)
