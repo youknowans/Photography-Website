@@ -1,14 +1,32 @@
+---
+// The one shared page shell: <head>, header, footer and the scripts every page
+// needs. Edit the nav or footer here and every page updates.
+//
+// Scripts use is:inline so Astro leaves them as plain <script src> tags pointing
+// at files in public/js (the CSP only allows scripts from this domain, not inline code).
+interface Props {
+  title: string;
+  description: string;
+  current?: 'portfolio' | 'journal' | 'contact';
+}
+const { title, description, current } = Astro.props;
+const nav = [
+  { key: 'portfolio', href: '/index.html', text: 'Portfolio' },
+  { key: 'journal', href: '/journal.html', text: 'Journal' },
+  { key: 'contact', href: '/contact.html', text: 'Contact' },
+];
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ansaff Ashraff | Portfolio</title>
-<meta name="description" content="Travel landscape and street photography by Ansaff Ashraff, London.">
+<title>{title}</title>
+<meta name="description" content={description}>
 <meta name="referrer" content="no-referrer">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/css/style.css">
-<script src="/js/boot.js"></script>
+<script is:inline src="/js/boot.js"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -16,9 +34,9 @@
 <header class="site-header">
   <a class="logo" href="/">Ansaff Ashraff</a>
   <nav class="primary-nav" aria-label="Primary">
-    <a href="/index.html" aria-current="page">Portfolio</a>
-    <a href="/journal.html">Journal</a>
-    <a href="/contact.html">Contact</a>
+    {nav.map((n) => (
+      <a href={n.href} aria-current={current === n.key ? 'page' : undefined}>{n.text}</a>
+    ))}
   </nav>
   <div class="header-controls">
     <div class="text-size-group" role="group" aria-label="Text size">
@@ -33,17 +51,10 @@
   </div>
 </header>
 
-<div class="subheader">
-  <div class="filter-tabs" data-filter-group data-filter-target="[data-tags]" role="group" aria-label="Filter by category">
-    <button data-filter="all" aria-pressed="true">All</button>
-    <button data-filter="portraits" aria-pressed="false">Portraits</button>
-    <button data-filter="travel" aria-pressed="false">Travel</button>
-    <button data-filter="lifestyle" aria-pressed="false">Lifestyle</button>
-  </div>
-</div>
+<slot name="subheader" />
 
 <main id="main">
-  <div class="plate-grid" id="plate-grid"></div>
+  <slot />
 </main>
 
 <footer class="site-footer">
@@ -52,13 +63,10 @@
   <div>All photographs &copy; Ansaff Ashraff</div>
 </footer>
 
-<script src="/js/theme.js"></script>
-<script src="/js/motion.js"></script>
-<script src="/js/textsize.js"></script>
-<script src="/js/mail.js"></script>
-<script src="/js/photos.js"></script>
-<script src="/js/portfolio.js"></script>
-<script src="/js/filters.js"></script>
-<script src="/js/lightbox.js"></script>
+<script is:inline src="/js/theme.js"></script>
+<script is:inline src="/js/motion.js"></script>
+<script is:inline src="/js/textsize.js"></script>
+<script is:inline src="/js/mail.js"></script>
+<slot name="scripts" />
 </body>
 </html>

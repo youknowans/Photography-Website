@@ -1,0 +1,40 @@
+---
+// The journal list is built here from the Markdown files in src/content/journal/,
+// so there is no list to update by hand.
+import Base from '../layouts/Base.astro';
+import { getPosts, postUrl, label } from '../lib/journal';
+const posts = await getPosts();
+---
+<Base title="Journal | Ansaff Ashraff"
+      description="Notes on gear, technique and travel from Ansaff Ashraff."
+      current="journal">
+  <div class="subheader" slot="subheader">
+    <div class="filter-tabs" data-filter-group data-filter-target="[data-tags]" role="group" aria-label="Filter by tag">
+      <button data-filter="all" aria-pressed="true">All</button>
+      <!-- One tab per post tag is added by js/filters.js -->
+    </div>
+  </div>
+
+  {posts.length === 0 ? (
+    <p class="empty-state">The first journal entries are on their way.</p>
+  ) : (
+    <div class="journal-grid" id="journal-grid">
+      {posts.map((p) => (
+        <a class="entry-card" href={postUrl(p.id)} data-tags={p.data.tag}>
+          {p.data.cover && (
+            <div class="frame">
+              <img src={`/images/thumb/${p.data.cover}`} alt="" loading="lazy" decoding="async">
+            </div>
+          )}
+          <span class="entry-tag">{label(p.data.tag)}{p.data.draft && ' (draft)'}</span>
+          <h3>{p.data.title}</h3>
+          {p.data.teaser && <p>{p.data.teaser}</p>}
+        </a>
+      ))}
+    </div>
+  )}
+
+  <Fragment slot="scripts">
+    <script is:inline src="/js/filters.js"></script>
+  </Fragment>
+</Base>

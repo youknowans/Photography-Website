@@ -1,0 +1,27 @@
+---
+// One page per Markdown file in src/content/journal/: kyoto.md -> /posts/kyoto.html
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { getPosts, label, longDate } from '../../lib/journal';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+const { post } = Astro.props;
+const { Content } = await render(post);
+const d = post.data;
+---
+<Base title={`${d.title} | Ansaff Ashraff`} description={d.teaser ?? d.title} current="journal">
+  <article class="post">
+    <p class="post-meta">{label(d.tag)} &middot; <time datetime={d.date.toISOString().slice(0, 10)}>{longDate(d.date)}</time></p>
+    <h1>{d.title}</h1>
+    {d.cover && (
+      <figure>
+        <img src={`/images/large/${d.cover}`} alt={d.coverAlt ?? ''}>
+      </figure>
+    )}
+    <Content />
+    <p><a class="entry-link" href="/journal.html">Back to the journal</a></p>
+  </article>
+</Base>

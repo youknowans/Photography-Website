@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Ansaff Ashraff | Portfolio"
+      description="Travel landscape and street photography by Ansaff Ashraff, London."
+      current="portfolio">
+  <div class="subheader" slot="subheader">
+    <div class="filter-tabs" data-filter-group data-filter-target="[data-tags]" role="group" aria-label="Filter by category">
+      <button data-filter="all" aria-pressed="true">All</button>
+      <!-- One tab per Lightroom keyword is added by js/filters.js -->
+    </div>
+  </div>
+
+  <div class="plate-grid" id="plate-grid"></div>
+
+  <Fragment slot="scripts">
+    <script is:inline src="/js/photos.js"></script>
+    <script is:inline src="/js/portfolio.js"></script>
+    <script is:inline src="/js/filters.js"></script>
+    <script is:inline src="/js/lightbox.js"></script>
+  </Fragment>
+</Base>

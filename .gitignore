@@ -24,3 +24,10 @@ images/full/
 *.key
 id_rsa*
 id_ed25519*
+
+# Claude Code instructions (local only)
+CLAUDE.md
+
+# Astro build output and cache (rebuilt from src/ every time)
+dist/
+.astro/
