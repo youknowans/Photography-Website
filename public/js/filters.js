@@ -8,10 +8,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelectorAll('[data-filter-group]').forEach(function (group) {
     var items = document.querySelectorAll(group.getAttribute('data-filter-target'));
-    var buttons = group.querySelectorAll('button[data-filter]');
     var grid = items.length ? items[0].parentElement : null;
 
     function tagsOf(item) { return (item.getAttribute('data-tags') || '').split(/\s+/); }
+
+    // Add a tab for every tag in use that has no button yet, A to Z after the
+    // hand-written ones. 'street-photography' is shown as 'Street photography'.
+    var have = {};
+    group.querySelectorAll('button[data-filter]').forEach(function (b) { have[b.getAttribute('data-filter')] = true; });
+    var found = [];
+    items.forEach(function (i) {
+      tagsOf(i).forEach(function (t) {
+        if (/^[a-z0-9-]+$/.test(t) && !have[t]) { have[t] = true; found.push(t); }
+      });
+    });
+    found.sort().forEach(function (t) {
+      var b = document.createElement('button');
+      b.setAttribute('data-filter', t);
+      b.setAttribute('aria-pressed', 'false');
+      var label = t.replace(/-/g, ' ');
+      b.textContent = label.charAt(0).toUpperCase() + label.slice(1);
+      group.appendChild(b);
+    });
+    var buttons = group.querySelectorAll('button[data-filter]');
 
     // hide tabs that would be empty
     var visibleTabs = 0;

@@ -9,11 +9,17 @@ document.addEventListener('DOMContentLoaded', function () {
   box.innerHTML =
     '<button class="lightbox-close" aria-label="Close">&times;</button>' +
     '<button class="lightbox-nav lightbox-prev" aria-label="Previous photo">&lsaquo;</button>' +
-    '<img alt="">' +
+    '<figure class="lightbox-figure"><img alt="">' +
+    '<figcaption class="lightbox-caption"><span class="lightbox-text"></span>' +
+    '<span class="lightbox-place"></span><span class="lightbox-settings"></span></figcaption></figure>' +
     '<button class="lightbox-nav lightbox-next" aria-label="Next photo">&rsaquo;</button>';
   document.body.appendChild(box);
 
   const img = box.querySelector('img');
+  const capText = box.querySelector('.lightbox-text');
+  const capPlace = box.querySelector('.lightbox-place');
+  const capSettings = box.querySelector('.lightbox-settings');
+  const caption = box.querySelector('.lightbox-caption');
   let plates = [], index = -1, opener = null;
 
   function show(i) {
@@ -22,6 +28,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const p = plates[index];
     img.src = p.getAttribute('data-large') || p.href;
     img.alt = p.querySelector('img').alt;
+    // textContent, never innerHTML: captions are data
+    capText.textContent = p.getAttribute('data-caption') || '';
+    capPlace.textContent = p.getAttribute('data-place') || '';
+    capSettings.textContent = p.getAttribute('data-settings') || '';
+    caption.hidden = !capText.textContent && !capPlace.textContent && !capSettings.textContent;
     box.classList.toggle('single', plates.length < 2);
   }
   function open(plate) {

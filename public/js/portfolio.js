@@ -12,6 +12,9 @@
     a.href = '/images/large/' + p.file;
     a.setAttribute('data-large', '/images/large/' + p.file);
     a.setAttribute('data-tags', String(p.category || ''));
+    a.setAttribute('data-caption', String(p.alt || ''));   // shown in the lightbox
+    a.setAttribute('data-place', String(p.place || ''));
+    a.setAttribute('data-settings', String(p.settings || ''));
 
     var img = document.createElement('img');
     img.src = '/images/thumb/' + p.file;
