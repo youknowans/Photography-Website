@@ -10,7 +10,7 @@ Turns Lightroom exports into the portfolio, with no hand-editing.
                               but NOT added to the portfolio.
     public/images/thumb/  ->  1000px long edge, quality 85, used in the grid
     public/images/large/  ->  2560px long edge, quality 92, used in the lightbox
-    public/js/photos.js   ->  rewritten from scratch every run (do not edit by hand)
+    public/js/photos.js   ->  rewritten every run (do not edit by hand)
 
 What it reads from each export (fill these in Lightroom's Metadata panel):
 
@@ -18,15 +18,17 @@ What it reads from each export (fill these in Lightroom's Metadata panel):
     City, Country        ->  place   (IPTC "Image" section, NOT "Contact")
     Keywords             ->  categories, one filter tab each. Several = several tabs.
     Category (optional)  ->  also used as categories, split on spaces/commas
-    Capture date         ->  order on the site, newest first
+    Capture date         ->  order on the site, newest first (saved in photos.js)
     Lens, f/, shutter, ISO -> settings line under the caption (from camera EXIF)
 
 Usage:
     python3 optimise-images.py            # process new or re-exported photos, rebuild photos.js
     python3 optimise-images.py --force    # re-make every web image
 
-The folder is the source of truth: a photo is on the site if and only if its export
-is in images/full/. Remove the export and run again to take a photo down.
+Once a photo is on the site it stays there, even if you later delete its export from
+images/full/: its details are carried over from the existing photos.js. To take a photo
+down, delete its .webp from public/images/thumb and public/images/large, then run again.
+To change a photo or its caption, re-export it into images/full/ and run again.
 
 Privacy: EXIF/GPS metadata is dropped from the web images by design, so the published
 copies carry no location, camera serial number or editing history. Only the fields
@@ -190,17 +192,46 @@ HEADER = """/*
   overwritten on the next run. Edit the photo's metadata in Lightroom instead,
   re-export into images/full/, and run:  python3 optimise-images.py
 
-  Fields: file (in images/thumb and images/large), alt (Lightroom Caption),
+  Fields: file (in images/thumb and images/large), w and h (grid image size in
+  pixels, so the page knows each photo's shape), date (capture date, used only
+  to keep the newest first), alt (Lightroom Caption),
   place (City, Country), category (Keywords, space separated; one tab each),
   settings (Lens | aperture, shutter | ISO, read from the camera data).
 */
 """
 
 
+FIELDS = ("file", "w", "h", "date", "alt", "place", "category", "settings")
+
+
+def read_photos_js() -> list:
+    """The photos currently listed in photos.js, so ones whose original has been
+    deleted can stay on the site. Anything unreadable is skipped."""
+    if not PHOTOS_JS.exists():
+        return []
+    decoder, entries = json.JSONDecoder(), []
+    for line in PHOTOS_JS.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not (line.startswith("{ file:") and line.endswith("},")):
+            continue
+        body, pos, entry = line[1:-2].strip(), 0, {}
+        try:
+            while pos < len(body):
+                m = re.compile(r"[\s,]*([a-z]+):\s*").match(body, pos)
+                if not m:
+                    break
+                entry[m.group(1)], pos = decoder.raw_decode(body, m.end())
+        except ValueError:
+            continue
+        if re.fullmatch(r"[A-Za-z0-9._-]+\.webp", str(entry.get("file", ""))):
+            entries.append(entry)
+    return entries
+
+
 def write_photos_js(entries: list) -> None:
     lines = []
     for e in entries:
-        fields = ", ".join(f"{k}: {json.dumps(e[k], ensure_ascii=False)}" for k in ("file", "alt", "place", "category", "settings"))
+        fields = ", ".join(f"{k}: {json.dumps(e.get(k, ''), ensure_ascii=False)}" for k in FIELDS)
         lines.append(f"  {{ {fields} }},")
     PHOTOS_JS.write_text(HEADER + "const PHOTOS = [\n" + "\n".join(lines) + ("\n" if lines else "") + "];\n", encoding="utf-8")
 
@@ -212,6 +243,7 @@ def main() -> None:
     if not FULL.exists():
         sys.exit(f"No {FULL} folder found. Create it and export your photos into it.")
 
+    previous = read_photos_js()                    # read before anything is rewritten
     sources = sorted(p for p in FULL.rglob("*") if p.is_file() and p.suffix.lower() in ACCEPT and not p.name.startswith("."))
 
     entries, seen, problems = [], {}, []
@@ -235,21 +267,42 @@ def main() -> None:
             problems.append(f"{rel}: no Caption (alt text). Add one in Lightroom for accessibility.")
         if not meta["tags"]:
             problems.append(f"{rel}: no Keywords, so it only appears under 'All'.")
-        entries.append({"file": name, "alt": meta["alt"], "place": meta["place"],
+        with Image.open(THUMB / name) as t:            # the grid lays tiles out from this shape
+            w, h = t.size
+        entries.append({"file": name, "w": w, "h": h, "alt": meta["alt"], "place": meta["place"],
                         "category": " ".join(meta["tags"]), "settings": read_settings(src),
-                        "_date": meta["date"]})
+                        "date": meta["date"]})
 
-    entries.sort(key=lambda e: e["_date"], reverse=True)       # newest capture first
+    # Photos already on the site whose original is no longer in images/full stay
+    # on the site, as long as their web image still exists.
+    kept = []
+    for old in previous:
+        name = old["file"]
+        if name in seen or not (THUMB / name).exists():
+            continue
+        if not (old.get("w") and old.get("h")):
+            with Image.open(THUMB / name) as t:
+                old["w"], old["h"] = t.size
+        old.setdefault("date", "")
+        kept.append(name)
+        entries.append(old)
+
+    # Newest capture first. Photos with no recorded date keep their old order, at the end.
+    entries.sort(key=lambda e: e["date"], reverse=True)
     write_photos_js(entries)
 
-    orphans = sorted(p.name for p in THUMB.glob("*.webp") if p.name not in seen) if THUMB.exists() else []
+    listed = {e["file"] for e in entries}
+    orphans = sorted(p.name for p in THUMB.glob("*.webp") if p.name not in seen and p.name not in listed) if THUMB.exists() else []
     tags = sorted({t for e in entries for t in e["category"].split()})
     print(f"\n{len(entries)} photo(s) written to public/js/photos.js")
     print(f"Categories: {', '.join(tags) or 'none'}")
     for p in problems:
         print(f"  ! {p}")
+    if kept:
+        print(f"  {len(kept)} photo(s) kept on the site without an original in images/full.")
+        print("    To take one down, delete its .webp from public/images/thumb and public/images/large, then run this again.")
     if orphans:
-        print(f"  ! Not on the site any more (export removed), safe to delete from public/images: {', '.join(orphans)}")
+        print(f"  ! Web images not in the portfolio (fine if a journal post or the Contact page uses them): {', '.join(orphans)}")
     print()
 
 
