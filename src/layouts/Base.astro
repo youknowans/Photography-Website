@@ -4,6 +4,8 @@
 //
 // Scripts use is:inline so Astro leaves them as plain <script src> tags pointing
 // at files in public/js (the CSP only allows scripts from this domain, not inline code).
+import { socials } from '../lib/socials';
+
 interface Props {
   title: string;
   description: string;
@@ -59,7 +61,12 @@ const nav = [
 
 <footer class="site-footer">
   <div>Ansaff Ashraff &middot; London</div>
-  <a href="/contact.html" data-mail data-user="hello" data-domain="youknowans.com" data-subject="Hello from your site">Email</a>
+  <ul class="foot-links">
+    <li><a href="/contact.html" data-mail data-user="hello" data-domain="youknowans.com" data-subject="Hello from your site">Email</a></li>
+    {socials.map((s) => (
+      <li><a href={s.href} target="_blank" rel="noopener noreferrer">{s.label}</a></li>
+    ))}
+  </ul>
   <div>All photographs &copy; Ansaff Ashraff</div>
 </footer>
 

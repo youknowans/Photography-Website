@@ -37,7 +37,16 @@
   font-display: swap;
 }
 
+/* Mansalva: the handwritten wordmark (your name in the header) only. */
+@font-face {
+  font-family: 'Mansalva';
+  src: url('fonts/mansalva-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
+  --font-logo: 'Mansalva', 'Segoe Script', 'Bradley Hand', cursive;
   --font-display: 'Space Grotesk', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
   --font-body: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 
@@ -109,13 +118,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 
 .logo {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: calc(2.4rem * var(--text-scale));
+  font-family: var(--font-logo);
+  font-weight: 400;                    /* Mansalva has one weight; anything else is faked by the browser */
+  font-size: calc(2.6rem * var(--text-scale));
   line-height: 1;
-  letter-spacing: -0.01em;
-  text-transform: uppercase;
-  white-space: nowrap;
+  white-space: nowrap; 
+  text-transform: uppercase;            /* add  text-transform: uppercase;  for an all-capitals name */
 }
 
 .primary-nav {
@@ -169,30 +177,37 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .filter-tabs button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
 .filter-tabs button:hover { color: var(--ink); }
 
-/* ---- Portfolio: tight masonry, no captions ---------------------------- */
+/* ---- Portfolio: justified rows, no captions ----------------------------
+   Every photo in a row has the same height and keeps its own shape, so a
+   landscape is naturally wider (larger) than a portrait and nothing is cropped.
+   --row-h is the one dial: raise it for bigger tiles, lower it for more per row.
+   --r is each photo's width / height, set by js/portfolio.js. */
 main { max-width: var(--max-width); margin: 0 auto; }
 
 .plate-grid {
+  --row-h: 400px;                      /* target row height; rows stretch a little to fill the width */
   padding: 0 var(--grid-pad) 48px;
-  column-count: 6;
-  column-gap: var(--gap);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
 }
+.plate-grid::after { content: ''; flex-grow: 1000000; }   /* stops the last row stretching */
 .plate {
+  --r: 1.5;
   display: block;
-  break-inside: avoid;
-  margin-bottom: var(--gap);
-  min-height: 120px;                   /* holds space until the image lands */
+  flex: var(--r) 1 calc(var(--r) * var(--row-h));
+  min-width: 0;
+  aspect-ratio: var(--r);              /* holds the right space before the image lands */
   background: var(--line);
 }
-.plate img { width: 100%; height: auto; transition: opacity 0.2s ease; }
+.plate img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.2s ease; }
 .plate:hover img { opacity: 0.9; }
 .js .plate:hover img.is-loaded { opacity: 0.9; }
 .plate[hidden] { display: none; }
 
-@media (max-width: 1500px) { .plate-grid { column-count: 5; } }
-@media (max-width: 1200px) { .plate-grid { column-count: 4; } }
-@media (max-width: 900px)  { .plate-grid { column-count: 3; } :root { --grid-pad: 24px; } }
-@media (max-width: 600px)  { .plate-grid { column-count: 2; } :root { --grid-pad: 14px; } }
+@media (max-width: 1200px) { .plate-grid { --row-h: 320px; } }
+@media (max-width: 900px)  { .plate-grid { --row-h: 260px; } :root { --grid-pad: 24px; } }
+@media (max-width: 600px)  { .plate-grid { --row-h: 200px; } :root { --grid-pad: 14px; } }
 
 /* ---- Lightbox ------------------------------------------------------------ */
 .lightbox {
@@ -256,12 +271,21 @@ main { max-width: var(--max-width); margin: 0 auto; }
 .about-contact {
   padding: 0 var(--pad) 48px;
   display: grid;
-  grid-template-columns: minmax(0, 520px) minmax(0, 420px);
+  grid-template-columns: minmax(0, 380px) minmax(0, 520px);
   justify-content: center;
   gap: 64px;
   align-items: start;
 }
-.about-contact .frame { margin-bottom: 20px; background: var(--line); }
+/* Portrait: a 4:5 box. Holds the placeholder now, and crops a real photo to fit later. */
+.portrait { aspect-ratio: 4 / 5; background: var(--line); }
+.portrait img { width: 100%; height: 100%; object-fit: cover; }
+.portrait-empty {
+  height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  color: var(--muted); font-size: var(--step--1);
+}
+.portrait-empty svg { width: 56px; height: 56px; fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; }
+.contact-block { margin-top: 44px; }
 .about-contact h1, .about-contact h2 {
   font-family: var(--font-display);
   text-transform: uppercase;
@@ -284,6 +308,7 @@ main { max-width: var(--max-width); margin: 0 auto; }
 
 @media (max-width: 800px) {
   .about-contact { grid-template-columns: 1fr; gap: 36px; }
+  .portrait { max-width: 320px; }
 }
 
 /* ---- Footer --------------------------------------------------------------- */

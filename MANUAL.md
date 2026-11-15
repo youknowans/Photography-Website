@@ -30,8 +30,9 @@ Everything comes from Lightroom; you never edit `photos.js` by hand.
 5. The script makes a 1000 px grid image and a 2560 px lightbox image (converted to sRGB, all metadata including GPS removed), then rewrites `public/js/photos.js`, newest capture date first. It warns about any photo with no caption or keywords.
 6. Check it with `npm run dev` (or `npm run preview`), then `git add -A`, commit, `git push`.
 
-**Changing a photo:** edit it or its metadata in Lightroom, re-export over the old file, and run the script again.
-**Removing a photo:** delete its export from `images/full/` and run the script. It lists the leftover web images you can delete.
+**Changing a photo:** edit it or its metadata in Lightroom, re-export it into `images/full/`, and run the script again.
+**Removing a photo:** delete its `.webp` from both `public/images/thumb` and `public/images/large`, and its export from `images/full/` if it is still there, then run the script.
+**Deleting originals:** once a photo is on the site it stays there even if you delete its export from `images/full/`; the script carries its details over from the existing list. Keep a backup of your originals somewhere else all the same: without the export you cannot change that photo's caption, place or keywords.
 
 ## Categories
 
@@ -63,15 +64,33 @@ The address is assembled in the browser so it never appears in the page source. 
 
 ## Add social links
 
-Add a line to the footer in `src/layouts/Base.astro`, for example:
-```html
-<a href="https://www.instagram.com/yourname" target="_blank" rel="noopener noreferrer">Instagram</a>
+All social links live in one list, `src/lib/socials.ts`. Each line is one link, for example:
+```ts
+{ label: 'Instagram', href: 'https://www.instagram.com/yourname' },
 ```
-The security policy allows plain links like this.
+Add, remove or reorder lines and both the footer and the Contact page update. The security policy allows plain links like this.
+
+## Your portrait
+
+The Contact page shows a grey placeholder box until you add a photo of yourself.
+
+1. Export the photo into `images/full/journal/` (that folder is resized for the web but kept out of the portfolio) and run `python3 optimise-images.py`. It prints the web filename, e.g. `me.webp`.
+2. In `src/pages/contact.astro`, change the filename on the `<img>` line inside `<div class="portrait">`, leaving the `<div>` lines above and below it alone:
+   ```html
+   <div class="portrait">
+     <img src="/images/thumb/me.webp" alt="Portrait of Ansaff Ashraff">
+   </div>
+   ```
+   The address always starts with `/images/thumb/` (the web copy the script made), never `images/full/` (your originals, which are not published).
+The box is 4:5 (upright), and the photo is cropped to fill it, so an upright photo works best.
+
+## Photo grid size
+
+The portfolio lays photos out in rows of equal height, so landscapes come out wider than portraits and nothing is cropped. One number controls the size: `--row-h` under `.plate-grid` in `public/css/style.css` (400px on a wide screen). Raise it for bigger tiles, lower it to fit more photos per row.
 
 ## Fonts
 
-Space Grotesk (headings, nav) and Hanken Grotesk (text). Both are open source (SIL OFL) and live in `public/css/fonts`. Do not add commercial font files to this public repo unless their licence allows redistribution.
+Mansalva (your name in the header), Space Grotesk (headings) and Hanken Grotesk (text). All are open source (SIL OFL) and live in `public/css/fonts`. Do not add commercial font files to this public repo unless their licence allows redistribution.
 
 ## If something looks wrong
 

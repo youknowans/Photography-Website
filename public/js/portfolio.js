@@ -21,6 +21,21 @@
     img.alt = p.alt || p.place || '';
     img.loading = 'lazy';
     img.decoding = 'async';
+
+    // Tell the layout the photo's shape (width / height) so its tile is the
+    // right size before the image arrives. Older photos.js files have no w/h,
+    // so fall back to measuring the image once it has loaded.
+    if (p.w > 0 && p.h > 0) {
+      img.width = p.w;
+      img.height = p.h;
+      a.style.setProperty('--r', (p.w / p.h).toFixed(4));
+    } else {
+      img.addEventListener('load', function () {
+        if (img.naturalWidth && img.naturalHeight) {
+          a.style.setProperty('--r', (img.naturalWidth / img.naturalHeight).toFixed(4));
+        }
+      });
+    }
     a.appendChild(img);
     grid.appendChild(a);
   });
