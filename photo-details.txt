@@ -1,0 +1,50 @@
+# Photo details: captions, places and keywords typed by hand.
+#
+# One photo per line, four parts separated by the | character:
+#     name | caption | place | keywords
+#
+#   name      the photo's filename, without .jpg (capitals do not matter)
+#   caption   a short description of what is in the picture. Screen readers read
+#             it aloud, and it shows under the photo when it is opened. No | inside it.
+#   place     City, Country  (shows in the lightbox)
+#   keywords  separated by commas. Each keyword becomes a filter tab on the Portfolio
+#             page, e.g.  travel, street. A photo can have several.
+#
+# A part you leave empty is not changed. Text here wins over what is stored inside the
+# photo file. Lines starting with # are ignored. After editing, run
+#     python optimise-images.py
+# and the changes appear in the gallery.
+#
+# Your own captions are kept as you wrote them. Places and keywords were filled in to match the other photos in each series.
+dscf5010 | Streets of Seville | Andalusia - Seville | travel
+dscf5074 | Streets of Seville | Andalusia - Seville | travel
+dscf5087 | Streets of Seville | Andalusia - Seville | travel
+dscf5119 | Streets of Seville | Andalusia - Seville | travel
+dscf5133 | Mosque Cathedral of Cordoba | Andalusia - Cordoba | travel
+dscf5152 | Mosque Cathedral of Cordoba | Andalusia - Cordoba | travel
+dscf7127 | Dolomites - Tre Cime | Dolomites, Italy | travel, landscape
+dscf7188 | Dolomites - Tre Cime | Dolomites, Italy | travel, landscape
+ny-2 | The Big Apple | New York, USA | travel, street
+ny-3 | The Big Apple | New York, USA | travel, street
+ny-5 | The Big Apple | New York, USA | travel, street
+ny-6 | The Big Apple | New York, USA | travel, street
+dscf4681 | Fiery Sunset | Florence, Italy | travel, landscape
+# Written from looking at the photos. Please read and correct anything that is wrong.
+germany-austria-2 | A passenger boat crosses the green water of Lake Königssee, framed between two weathered wooden boathouses | Königssee, Germany | travel, landscape
+germany-austria-3 | A woman walks through the gardens of Nymphenburg Palace in Munich, the palace and her reflection mirrored in the pond | Munich, Germany | travel
+germany-austria-4 | Afternoon Stroll in Nymphenburg Palace | Munich, Germany | travel
+germany-austria-5 | A small rowing boat on the deep green water of Lake Königssee, beneath a forested cliff and distant mountains | Königssee, Germany | travel, landscape
+germany-austria-6 | Steep forested mountains and soft clouds frame the open water of Lake Königssee | Königssee, Germany | travel, landscape
+germany-austria-22 | Expedition in Eisriesenwelt ice cave in peak summer | Werfen, Austria | travel, landscape
+napoli-3 | A woman with a suitcase walks away down a narrow cobbled street in Naples, lined with parked cars, balconies and hanging washing | Naples, Italy | travel, street
+napoli-4 | A café front in Naples under a sign reading Pacifico, with a vase of dried red flowers in the window and red and black folding chairs outside | Naples, Italy | travel, street
+napoli-5 | Napoli fans in blue shirts gather in front of a large domed church, with haze in the air | Naples, Italy | travel, street
+# Spelling fixes for places already on the site (Werfern should be Werfen; Königssee had no place). Delete these lines to undo.
+germany-austria-27 |  | Werfen, Austria | 
+germany-austria-25 |  | Werfen, Austria | 
+germany-austria-23 |  | Werfen, Austria | 
+germany-austria-21 |  | Werfen, Austria | 
+germany-austria-20 |  | Werfen, Austria | 
+germany-austria-17 |  | Werfen, Austria | 
+germany-austria-10 |  | Werfen, Austria | 
+germany-austria-1 |  | Königssee, Germany | 
