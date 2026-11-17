@@ -34,6 +34,23 @@ Everything comes from Lightroom; you never edit `photos.js` by hand.
 **Removing a photo:** delete its `.webp` from both `public/images/thumb` and `public/images/large`, and its export from `images/full/` if it is still there, then run the script.
 **Deleting originals:** once a photo is on the site it stays there even if you delete its export from `images/full/`; the script carries its details over from the existing list. Keep a backup of your originals somewhere else all the same: without the export you cannot change that photo's caption, place or keywords.
 
+## Captions and keywords without Lightroom: photo-details.txt
+
+For photos whose files carry no caption, place or keywords (or whose originals are gone), type them into `photo-details.txt` in the project folder. One photo per line, four parts separated by `|`:
+
+```
+dscf4681 | Fiery sunset over the rooftops of Seville | Seville, Spain | Travel, Street
+```
+
+- **name**: the filename without `.jpg`; capitals don't matter.
+- **caption**: a short description of what is in the picture. Screen readers read it aloud and it shows in the lightbox. It cannot contain a `|`.
+- **place** and **keywords**: keywords are separated by commas, and each becomes a filter tab.
+- A part you leave empty is not changed. Text in this file wins over what is stored inside the photo.
+
+After editing, run `python optimise-images.py`. It reports typos (a name with no photo, a line with too many parts) and lists photos that still have no caption or keywords. The file starts with the photos that were missing them.
+
+Photos with no Lightroom date are now ordered by the camera's own timestamp.
+
 ## Categories
 
 Categories are your Lightroom **Keywords**. Give a photo several and it appears under each tab. A new keyword gets its own tab automatically, with no HTML to edit. `Street Photography` becomes the tab "Street photography". The tab bar stays hidden until at least two categories are in use.

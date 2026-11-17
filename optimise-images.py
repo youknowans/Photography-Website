@@ -18,7 +18,12 @@ What it reads from each export (fill these in Lightroom's Metadata panel):
     City, Country        ->  place   (IPTC "Image" section, NOT "Contact")
     Keywords             ->  categories, one filter tab each. Several = several tabs.
     Category (optional)  ->  also used as categories, split on spaces/commas
-    Capture date         ->  order on the site, newest first (saved in photos.js)
+    Capture date         ->  order on the site, newest first (saved in photos.js);
+                              falls back to the camera's own timestamp
+    photo-details.txt    ->  captions, places and keywords typed by hand, for photos whose
+                              files have none (or to correct ones that do). It wins over
+                              what is inside the file. One photo per line:
+                                  name | caption | place | keywords
     Lens, f/, shutter, ISO -> settings line under the caption (from camera EXIF)
 
 Usage:
@@ -54,6 +59,7 @@ FULL = ROOT / "images" / "full"
 THUMB = ROOT / "public" / "images" / "thumb"
 LARGE = ROOT / "public" / "images" / "large"
 PHOTOS_JS = ROOT / "public" / "js" / "photos.js"
+DETAILS = ROOT / "photo-details.txt"
 
 SIZES = {  # folder: (max long-edge px, webp quality)
     THUMB: (1000, 85),
@@ -122,6 +128,52 @@ def read_xmp(path: Path) -> dict:
 
     meta["date"] = simple("photoshop", "DateCreated") or simple("xmp", "CreateDate")
     return meta
+
+
+def read_exif_date(path: Path) -> str:
+    """The camera's own capture time as '2025-05-26T13:02:30', for photos that carry
+    no Lightroom (XMP) date. Returns '' if the file has none."""
+    try:
+        with Image.open(path) as im:
+            raw = str(im.getexif().get_ifd(0x8769).get(0x9003, "")).strip("\x00 ")   # DateTimeOriginal
+    except Exception:
+        return ""
+    m = re.fullmatch(r"(\d{4}):(\d{2}):(\d{2}) (\d{2}:\d{2}:\d{2})", raw)
+    return f"{m.group(1)}-{m.group(2)}-{m.group(3)}T{m.group(4)}" if m else ""
+
+
+def read_details(known: set) -> tuple:
+    """photo-details.txt: captions, places and keywords written by hand, for photos whose
+    files carry none (or to correct ones that do). One photo per line:
+
+        name | caption | place | keywords
+
+    Returns ({'dscf4681.webp': {'alt':..., 'place':..., 'category':...}}, [problems]).
+    Empty fields are ignored, so only what you fill in changes."""
+    if not DETAILS.exists():
+        return {}, []
+    out, problems = {}, []
+    for n, raw in enumerate(DETAILS.read_text(encoding="utf-8-sig").splitlines(), 1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) > 4:
+            problems.append(f"{DETAILS.name} line {n}: more than 4 parts. A caption cannot contain the | character.")
+            continue
+        parts += [""] * (4 - len(parts))
+        name = slug(Path(parts[0]).stem) + ".webp"
+        if name not in known:
+            problems.append(f"{DETAILS.name} line {n}: no photo called '{parts[0]}' on the site. Check the spelling.")
+            continue
+        tags = []
+        for word in parts[3].split(","):                # commas only, so 'Street Photography' stays one keyword
+            t = slug(word)
+            if t and t not in tags:
+                tags.append(t)
+        details = {"alt": parts[1], "place": parts[2], "category": " ".join(tags)}
+        out[name] = {k: v for k, v in details.items() if v}
+    return out, problems
 
 
 def read_settings(path: Path) -> str:
@@ -263,15 +315,11 @@ def main() -> None:
         meta = read_xmp(src)
         print(f"  {status}  {rel}  ->  {', '.join(meta['tags']) or 'no categories'}")
 
-        if not meta["alt"]:
-            problems.append(f"{rel}: no Caption (alt text). Add one in Lightroom for accessibility.")
-        if not meta["tags"]:
-            problems.append(f"{rel}: no Keywords, so it only appears under 'All'.")
         with Image.open(THUMB / name) as t:            # the grid lays tiles out from this shape
             w, h = t.size
         entries.append({"file": name, "w": w, "h": h, "alt": meta["alt"], "place": meta["place"],
                         "category": " ".join(meta["tags"]), "settings": read_settings(src),
-                        "date": meta["date"]})
+                        "date": meta["date"] or read_exif_date(src)})
 
     # Photos already on the site whose original is no longer in images/full stay
     # on the site, as long as their web image still exists.
@@ -287,6 +335,17 @@ def main() -> None:
         kept.append(name)
         entries.append(old)
 
+    # Hand-written details (photo-details.txt) fill in or correct what the files carry.
+    details, detail_problems = read_details({e["file"] for e in entries})
+    problems += detail_problems
+    for e in entries:
+        e.update(details.get(e["file"], {}))
+    for e in entries:                                  # warn about what is still missing
+        if not e.get("alt"):
+            problems.append(f"{e['file']}: no caption (alt text for screen readers). Add it in photo-details.txt or Lightroom.")
+        if not e.get("category"):
+            problems.append(f"{e['file']}: no keywords, so it only appears under 'All'. Add them in photo-details.txt or Lightroom.")
+
     # Newest capture first. Photos with no recorded date keep their old order, at the end.
     entries.sort(key=lambda e: e["date"], reverse=True)
     write_photos_js(entries)
@@ -296,6 +355,8 @@ def main() -> None:
     tags = sorted({t for e in entries for t in e["category"].split()})
     print(f"\n{len(entries)} photo(s) written to public/js/photos.js")
     print(f"Categories: {', '.join(tags) or 'none'}")
+    if details:
+        print(f"Details from {DETAILS.name} applied to {len(details)} photo(s).")
     for p in problems:
         print(f"  ! {p}")
     if kept:
